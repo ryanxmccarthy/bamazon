@@ -40,47 +40,89 @@ function afterConnect() {
 
 		console.log(table.toString());
 
-		promptUser();
+		function promptUser() {
+			inquirer.prompt([
+			    {
+			      	type: "input",
+			      	message: "What is the ID of the product you wish to buy?",
+			      	name: "item_id",
+			      	validate: function (input) {
+					    var done = this.async();
+					    setTimeout(function() {
+					    	if (isNaN(+input)) {
+					    		done('You must provide a number');
+					        	return;
+					      	}
+					    	done(null, true);
+					    }, 0);
+					}
+			    },
+			    {
+			      	type: "input",
+			      	message: "How many do you wish to buy?",
+			      	name: "quantity",
+			      	validate: function (input) {
+					    var done = this.async();
+					    setTimeout(function() {
+					    	if (isNaN(+input)) {
+					    		done('You must provide a number');
+					        	return;
+					      	}
+					    	done(null, true);
+					    }, 0);
+					}
+			    },
+			]).then(function(response) {
+				if(response.quantity > results[response.item_id - 1].stock_quantity) {
+					console.log('That amount exceeds our stock. We currently have' + results[response.item_id].stock_quantity + 'in inventory.')
+					promptUser()
+				} else {
+					var newStock = results[response.item_id - 1].stock_quantity - response.quantity;
+					console.log(newStock)
+					function updateProduct() {
+					  var query = con.query(
+					    "UPDATE products SET ? WHERE ?",
+					    [
+					      {
+					      	title: "Filosofem"
+					      },
+					      {
+					        artist: "Burzum"
+					      }
+					    ],
+					    function(err, results) {
+					    	if (err) throw err;
+					    	console.log(results);
+					      console.log(results.affectedRows + " products updated!\n");
+					    }
+					  );
+					  console.log(query.sql);
+					}
+				}
+			});	
+		}
+
+		promptUser();	
 	})
 }
 
-function promptUser() {
-	inquirer.prompt([
-	    {
-	      	type: "input",
-	      	message: "What is the ID of the product you wish to buy?",
-	      	name: "item_id",
-	      	validate: function (input) {
-			    var done = this.async();
-			    setTimeout(function() {
-			    	if (isNaN(+input)) {
-			    		done('You must provide a number');
-			        	return;
-			      	}
-			    	done(null, true);
-			    }, 0);
-			}
-	    },
-	    {
-	      	type: "input",
-	      	message: "How many do you wish to buy?",
-	      	name: "quantity",
-	      	validate: function (input) {
-			    var done = this.async();
-			    setTimeout(function() {
-			    	if (isNaN(+input)) {
-			    		done('You must provide a number');
-			        	return;
-			      	}
-			    	done(null, true);
-			    }, 0);
-			}
-	    },
-	]).then(function(response) {
-		if(response.quantity > results[item_id].stock_quantity) {
-			console.log('Too many')
-		} else {
-			
-		}
-	});	
+function updateProduct() {
+  var query = con.query(
+    "UPDATE songs SET ? WHERE ?",
+    [
+      {
+      	title: "Filosofem"
+      },
+      {
+        artist: "Burzum"
+      }
+    ],
+    function(err, results) {
+    	if (err) throw err;
+    	console.log(results);
+      console.log(results.affectedRows + " products updated!\n");
+      deleteProduct();
+    }
+  );
+  console.log(query.sql);
 }
