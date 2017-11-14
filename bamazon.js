@@ -74,55 +74,29 @@ function afterConnect() {
 			    },
 			]).then(function(response) {
 				if(response.quantity > results[response.item_id - 1].stock_quantity) {
-					console.log('That amount exceeds our stock. We currently have' + results[response.item_id].stock_quantity + 'in inventory.')
+					console.log('That amount exceeds our stock. We currently have ' + results[response.item_id - 1].stock_quantity + ' in inventory.')
 					promptUser()
 				} else {
 					var newStock = results[response.item_id - 1].stock_quantity - response.quantity;
-					console.log(newStock)
 					function updateProduct() {
-					  var query = con.query(
-					    "UPDATE products SET ? WHERE ?",
-					    [
-					      {
-					      	title: "Filosofem"
-					      },
-					      {
-					        artist: "Burzum"
-					      }
-					    ],
-					    function(err, results) {
-					    	if (err) throw err;
-					    	console.log(results);
-					      console.log(results.affectedRows + " products updated!\n");
-					    }
-					  );
-					  console.log(query.sql);
+						var query = con.query(
+					    	"UPDATE products SET ? WHERE ?",
+					    	[
+					      	{
+					      		item_id: newStock
+					      	},
+					    	],
+					    	function(err, results) {
+					    		if (err) throw err;
+					    		console.log(results);
+					      		console.log(results.affectedRows + " products updated!\n");
+					    	}
+					  	);
 					}
+					console.log('That will be $' + (response.quantity * results[response.item_id - 1].price) + ' . Thank you very much!')
 				}
 			});	
 		}
-
 		promptUser();	
 	})
-}
-
-function updateProduct() {
-  var query = con.query(
-    "UPDATE songs SET ? WHERE ?",
-    [
-      {
-      	title: "Filosofem"
-      },
-      {
-        artist: "Burzum"
-      }
-    ],
-    function(err, results) {
-    	if (err) throw err;
-    	console.log(results);
-      console.log(results.affectedRows + " products updated!\n");
-      deleteProduct();
-    }
-  );
-  console.log(query.sql);
 }
