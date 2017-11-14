@@ -17,12 +17,14 @@ con.connect(function(err) {
 });
 
 function afterConnect() {
-	con.query('SELECT * FROM products', function(err, results){
+	con.query('SELECT * FROM products', function(err, results) {
 		if (err) throw err;
+
 		var table = new Table({
 		    head: ['Item ID', 'Product', 'Department', 'Price', 'Stock #']
 		  , colWidths: [10, 20, 40, 10, 10]
 		});
+
 		table.push(
 		    [results[0].item_id, results[0].product_name, results[0].department_name, "$" + results[0].price, results[0].stock_quantity]
 		  , [results[1].item_id, results[1].product_name, results[1].department_name, "$" + results[1].price, results[1].stock_quantity]
@@ -35,6 +37,50 @@ function afterConnect() {
 		  , [results[8].item_id, results[8].product_name, results[8].department_name, "$" + results[8].price, results[8].stock_quantity]
 		  , [results[9].item_id, results[9].product_name, results[9].department_name, "$" + results[9].price, results[9].stock_quantity]
 		); 
+
 		console.log(table.toString());
+
+		promptUser();
 	})
+}
+
+function promptUser() {
+	inquirer.prompt([
+	    {
+	      	type: "input",
+	      	message: "What is the ID of the product you wish to buy?",
+	      	name: "item_id",
+	      	validate: function (input) {
+			    var done = this.async();
+			    setTimeout(function() {
+			    	if (isNaN(+input)) {
+			    		done('You must provide a number');
+			        	return;
+			      	}
+			    	done(null, true);
+			    }, 0);
+			}
+	    },
+	    {
+	      	type: "input",
+	      	message: "How many do you wish to buy?",
+	      	name: "quantity",
+	      	validate: function (input) {
+			    var done = this.async();
+			    setTimeout(function() {
+			    	if (isNaN(+input)) {
+			    		done('You must provide a number');
+			        	return;
+			      	}
+			    	done(null, true);
+			    }, 0);
+			}
+	    },
+	]).then(function(response) {
+		if(response.quantity > results[item_id].stock_quantity) {
+			console.log('Too many')
+		} else {
+			
+		}
+	});	
 }
