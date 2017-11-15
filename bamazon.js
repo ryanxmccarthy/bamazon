@@ -13,7 +13,7 @@ con.connect(function(err) {
   	if (err) throw err;
   	console.log("Connected as id " + con.threadId);
   	afterConnect(); 	
-  	con.end();
+  	// con.end();
 });
 
 function afterConnect() {
@@ -22,7 +22,7 @@ function afterConnect() {
 
 		var table = new Table({
 		    head: ['Item ID', 'Product', 'Department', 'Price', 'Stock #']
-		  , colWidths: [10, 20, 40, 10, 10]
+		  , colWidths: [10, 20, 20, 10, 10]
 		});
 
 		table.push(
@@ -78,22 +78,28 @@ function afterConnect() {
 					promptUser()
 				} else {
 					var newStock = results[response.item_id - 1].stock_quantity - response.quantity;
+
 					function updateProduct() {
 						var query = con.query(
-					    	"UPDATE products SET ? WHERE ?",
-					    	[
-					      	{
-					      		item_id: newStock
-					      	},
-					    	],
-					    	function(err, results) {
-					    		if (err) throw err;
-					    		console.log(results);
-					      		console.log(results.affectedRows + " products updated!\n");
-					    	}
-					  	);
+						    "UPDATE products SET ? WHERE ?",
+						    [
+						      {
+						      	stock_quantity: newStock
+						      },
+						      {
+						        item_id: response.item_id
+						      }
+						    ],
+						    function(err, results) {
+						    	if (err) throw err;
+						    	console.log(results);
+						    }
+						);
 					}
-					console.log('That will be $' + (response.quantity * results[response.item_id - 1].price) + ' . Thank you very much!')
+
+					updateProduct();
+
+					console.log('That will be $' + (response.quantity * results[response.item_id - 1].price) + ' . Thank you very much!');
 				}
 			});	
 		}
