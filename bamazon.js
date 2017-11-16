@@ -9,13 +9,14 @@ var con = mysql.createConnection({
   	database: "bamazon"
 });
 
+//connects to mySQL database
 con.connect(function(err) {
   	if (err) throw err;
-  	console.log("Connected as id " + con.threadId);
   	afterConnect(); 	
   	// con.end();
 });
 
+//displays table and prompts user for product they wish to purchase
 function afterConnect() {
 	con.query('SELECT * FROM products', function(err, results) {
 		if (err) throw err;
@@ -78,28 +79,35 @@ function afterConnect() {
 					promptUser()
 				} else {
 					var newStock = results[response.item_id - 1].stock_quantity - response.quantity;
-
-					function updateProduct() {
-						var query = con.query(
-						    "UPDATE products SET ? WHERE ?",
-						    [
-						      {
-						      	stock_quantity: newStock
-						      },
-						      {
-						        item_id: response.item_id
-						      }
-						    ],
-						    function(err, results) {
-						    	if (err) throw err;
-						    	console.log(results);
-						    }
-						);
-					}
-
-					updateProduct();
+					
+					var query = con.query(
+					    "UPDATE products SET ? WHERE ?",
+					    [
+					      {
+					      	stock_quantity: newStock
+					      },
+					      {
+					        item_id: response.item_id
+					      }
+					    ],
+					);
 
 					console.log('That will be $' + (response.quantity * results[response.item_id - 1].price) + ' . Thank you very much!');
+
+					//asks the user if they wish to continue purchasing
+					inquirer.prompt([
+						{
+				      	type: "input",
+				      	message: "Would you like to purchase another item? y/n",
+				      	name: "continue",
+				     	}
+					]).then(function(response) {
+						if (response.continue === 'y') {
+							promptUser()
+						} else {
+							con.end()
+						}
+					})
 				}
 			});	
 		}
