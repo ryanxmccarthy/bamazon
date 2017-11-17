@@ -13,7 +13,6 @@ var con = mysql.createConnection({
 con.connect(function(err) {
   	if (err) throw err;
   	afterConnect(); 	
-  	// con.end();
 });
 
 //displays table and prompts user for product they wish to purchase
